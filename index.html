@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="韓文 40 個字母與 105 個常用單字的發音練習遊戲，介面為繁體中文。認字母、找字母、拼音節、學單字、聽發音五種模式。">
+<meta name="theme-color" content="#edf0ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1312" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="한글 發音道場">
+<meta property="og:description" content="韓文字母與單字發音練習遊戲（繁體中文介面）">
+<meta property="og:type" content="website">
+<style>
+  /* 還原 Claude Artifact 執行環境提供的基本重置 */
+  :root{
+    color-scheme: light dark;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body{ margin:0 }
+  img{ max-width:100% }
+  [hidden]{ display:none !important }
+</style>
+<title>한글 發音道場</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EDF0EC; --card:#F9FBF8; --raise:#FFFFFF;
+  --ink:#171F1C; --ink-2:#4B5A54; --ink-3:#7E8C86;
+  --line:#D4DCD6; --line-2:#C0CAC3;
+  --accent:#8C6410; --accent-br:#C2932A; --accent-soft:#F3E9CD;
+  --ok:#136B58; --ok-soft:#DBEDE5; --ok-line:#8FC6B4;
+  --no:#AC3824; --no-soft:#F7E1DA; --no-line:#DFA898;
+  --shadow:0 1px 2px rgba(23,31,28,.05), 0 10px 26px -14px rgba(23,31,28,.22);
+  --f-disp:'Gowun Batang','Noto Serif TC',"Songti TC",serif;
+  --f-body:'Noto Sans TC',-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1312; --card:#151D1B; --raise:#1B2523;
+    --ink:#E7EFEB; --ink-2:#A2B1AB; --ink-3:#73827C;
+    --line:#26322F; --line-2:#34423E;
+    --accent:#DFB253; --accent-br:#DFB253; --accent-soft:#32280F;
+    --ok:#4FC3A2; --ok-soft:#0F2F28; --ok-line:#2B6A59;
+    --no:#EB7358; --no-soft:#361B14; --no-line:#7C3C2C;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 30px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1312; --card:#151D1B; --raise:#1B2523;
+  --ink:#E7EFEB; --ink-2:#A2B1AB; --ink-3:#73827C;
+  --line:#26322F; --line-2:#34423E;
+  --accent:#DFB253; --accent-br:#DFB253; --accent-soft:#32280F;
+  --ok:#4FC3A2; --ok-soft:#0F2F28; --ok-line:#2B6A59;
+  --no:#EB7358; --no-soft:#361B14; --no-line:#7C3C2C;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 30px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:15px; line-height:1.6;
+  margin:0; padding-inline:16px; padding-block:0 28px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:560px; margin:0 auto}
+
+/* ---------- header ---------- */
+.top{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:16px; padding-block:20px 14px;
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex; flex-direction:column; gap:1px}
+.brand .ko{
+  font-family:var(--f-disp); font-weight:700; font-size:30px;
+  line-height:1; letter-spacing:.01em; color:var(--ink);
+}
+.brand .zh{
+  font-size:11px; letter-spacing:.22em; text-transform:none;
+  color:var(--ink-3); padding-left:2px;
+}
+.score{display:flex; gap:18px; text-align:right}
+.score dl{margin:0}
+.score dt{font-size:10px; letter-spacing:.14em; color:var(--ink-3)}
+.score dd{
+  margin:0; font-family:var(--f-mono); font-variant-numeric:tabular-nums;
+  font-size:19px; font-weight:500; line-height:1.25; color:var(--ink);
+}
+.score dd.hot{color:var(--accent)}
+
+/* ---------- mode tabs ---------- */
+.modes{
+  display:grid; grid-template-columns:repeat(5,1fr); gap:2px; margin-top:14px;
+  background:var(--card); border:1px solid var(--line);
+  border-radius:3px; padding:3px;
+}
+.modes button{
+  min-width:0; appearance:none; cursor:pointer;
+  border:0; border-radius:2px; padding:9px 2px 8px;
+  background:transparent; color:var(--ink-2);
+  font-family:var(--f-body); font-size:13px; font-weight:500;
+  letter-spacing:-.01em; white-space:nowrap;
+  transition:background .15s, color .15s;
+}
+.modes button:hover{color:var(--ink)}
+.modes button[aria-pressed="true"]{
+  background:var(--ink); color:var(--paper); font-weight:700;
+}
+.modes button[disabled]{opacity:.35; cursor:not-allowed}
+
+/* ---------- stage ---------- */
+.stage{
+  margin-top:14px; background:var(--card);
+  border:1px solid var(--line-2); border-radius:3px;
+  box-shadow:var(--shadow);
+  padding:22px 18px 18px;
+  position:relative;
+}
+.stage::before{
+  content:""; position:absolute; inset:3px; border:1px solid var(--line);
+  border-radius:1px; pointer-events:none;
+}
+.ask{
+  position:relative; text-align:center;
+  font-size:12px; letter-spacing:.16em; color:var(--ink-3);
+  margin-bottom:14px;
+}
+
+.promptbox{position:relative; display:grid; place-items:center; margin-bottom:6px}
+.cell{position:relative; width:158px; height:158px; display:grid; place-items:center}
+.cell.wide{width:100%; max-width:100%; height:120px}
+.cell.wide svg{display:none}
+.cell svg{position:absolute; inset:0; width:100%; height:100%}
+.cell svg rect{fill:none; stroke:var(--line-2); stroke-width:1}
+.cell svg line{stroke:var(--line); stroke-width:1; stroke-dasharray:4 5}
+.glyph{
+  position:relative; font-family:var(--f-disp); font-weight:400;
+  font-size:88px; line-height:1; color:var(--ink);
+  user-select:none;
+}
+.glyph.sm{font-size:62px}
+.glyph.word{font-size:58px; letter-spacing:.02em; text-align:center; line-height:1.15}
+.glyph.word.long{font-size:44px}
+.glyph.mean{
+  font-family:var(--f-body); font-weight:700; font-size:34px;
+  letter-spacing:.06em; text-align:center; line-height:1.25;
+}
+.glyph.rom{
+  font-family:var(--f-mono); font-weight:400; font-size:44px;
+  letter-spacing:.02em; color:var(--ink);
+}
+.formula{
+  position:relative; font-family:var(--f-disp); font-size:40px;
+  display:flex; align-items:center; gap:10px; color:var(--ink);
+}
+.formula em{font-family:var(--f-mono); font-style:normal; font-size:22px; color:var(--ink-3)}
+
+.subhint{
+  text-align:center; min-height:22px; margin-top:2px;
+  font-size:13px; color:var(--ink-2);
+}
+.audiobtn{
+  display:block; margin:10px auto 0; cursor:pointer;
+  border:1px solid var(--line-2); background:var(--raise); color:var(--ink-2);
+  border-radius:999px; padding:7px 16px 7px 13px;
+  font-family:var(--f-body); font-size:13px;
+  transition:border-color .15s, color .15s;
+}
+.audiobtn:hover{border-color:var(--accent-br); color:var(--accent)}
+
+/* seal stamp */
+.seal{
+  position:absolute; top:6px; right:2px; width:52px; height:52px;
+  border-radius:50%; display:grid; place-items:center;
+  font-family:var(--f-disp); font-weight:700; font-size:24px;
+  border:2.5px solid var(--ok); color:var(--ok);
+  opacity:0; transform:rotate(-14deg) scale(1.5);
+  pointer-events:none;
+}
+.seal.no{border-color:var(--no); color:var(--no)}
+.seal.show{animation:stamp .5s cubic-bezier(.2,1.2,.3,1) forwards}
+@keyframes stamp{
+  0%{opacity:0; transform:rotate(-14deg) scale(1.6)}
+  55%{opacity:.95; transform:rotate(-14deg) scale(.94)}
+  100%{opacity:.88; transform:rotate(-14deg) scale(1)}
+}
+
+/* ---------- choices ---------- */
+.choices{
+  position:relative; display:grid; grid-template-columns:1fr 1fr;
+  gap:8px; margin-top:16px;
+}
+.choice{
+  position:relative; appearance:none; cursor:pointer;
+  background:var(--raise); color:var(--ink);
+  border:1px solid var(--line-2); border-radius:3px;
+  padding:14px 10px; min-height:62px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--f-mono); font-size:19px; font-weight:500;
+  transition:border-color .12s, background .12s, transform .08s;
+}
+.choice.ko{font-family:var(--f-disp); font-size:34px; font-weight:400; line-height:1}
+.choice.ko.wd{font-size:23px; line-height:1.25}
+.choice.zhopt{font-family:var(--f-body); font-size:17px; font-weight:500; line-height:1.35}
+.choice.rrw{font-size:14.5px; letter-spacing:0; word-break:break-all; line-height:1.35}
+.choice{text-align:center}
+.lcard.wordcard .h{font-family:var(--f-disp); letter-spacing:.02em}
+.choice .num{
+  position:absolute; left:8px; top:6px;
+  font-family:var(--f-mono); font-size:10px; color:var(--ink-3);
+}
+.choice:hover:not(:disabled){border-color:var(--accent-br)}
+.choice:active:not(:disabled){transform:translateY(1px)}
+.choice:disabled{cursor:default}
+.choice.right{background:var(--ok-soft); border-color:var(--ok); color:var(--ok)}
+.choice.wrong{background:var(--no-soft); border-color:var(--no); color:var(--no)}
+.choice.dim{opacity:.4}
+.choice:focus-visible{outline:2px solid var(--accent-br); outline-offset:2px}
+
+/* ---------- reveal ---------- */
+.reveal{
+  position:relative; margin-top:14px; padding-top:13px;
+  border-top:1px solid var(--line);
+}
+.reveal .line1{
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; margin-bottom:5px;
+}
+.reveal .kochar{font-family:var(--f-disp); font-size:26px; line-height:1}
+.reveal .koname{font-family:var(--f-disp); font-size:16px; color:var(--ink-2)}
+.reveal .rr{
+  font-family:var(--f-mono); font-size:14px; color:var(--accent);
+  border:1px solid var(--accent-br); border-radius:2px; padding:1px 7px;
+}
+.reveal p{margin:0; font-size:13.5px; color:var(--ink-2)}
+.reveal .org{
+  margin-top:7px; font-size:12px; color:var(--ink-3);
+  font-family:var(--f-disp); letter-spacing:.02em;
+}
+.reveal .decomp{
+  margin-top:9px; padding:8px 10px; border-radius:2px;
+  background:var(--accent-soft); border:1px solid var(--line);
+  font-family:var(--f-disp); font-size:14px; line-height:1.75;
+  color:var(--ink-2); letter-spacing:.03em;
+}
+.reveal .decomp b{font-weight:700; color:var(--ink)}
+.seg{
+  display:flex; gap:2px; margin-top:14px;
+  background:var(--card); border:1px solid var(--line);
+  border-radius:3px; padding:3px;
+}
+.seg button{
+  flex:1; appearance:none; cursor:pointer; border:0; border-radius:2px;
+  padding:8px; background:transparent; color:var(--ink-2);
+  font-family:var(--f-body); font-size:13px; font-weight:500;
+}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--paper); font-weight:700}
+.nextrow{display:flex; gap:8px; margin-top:13px}
+.next{
+  flex:1; appearance:none; cursor:pointer; border:0; border-radius:3px;
+  background:var(--ink); color:var(--paper);
+  font-family:var(--f-body); font-size:14px; font-weight:700;
+  padding:12px; letter-spacing:.06em;
+}
+.next:hover{opacity:.88}
+.next:focus-visible{outline:2px solid var(--accent-br); outline-offset:2px}
+
+/* ---------- scope ---------- */
+.tools{margin-top:16px}
+.toolhead{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:11px; letter-spacing:.16em; color:var(--ink-3); margin-bottom:8px;
+}
+.linkbtn{
+  appearance:none; border:0; background:none; cursor:pointer;
+  font-family:var(--f-body); font-size:12px; letter-spacing:.06em;
+  color:var(--accent); border-bottom:1px solid var(--accent-br); padding:0 0 1px;
+}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{
+  appearance:none; cursor:pointer; border-radius:999px;
+  border:1px solid var(--line-2); background:transparent; color:var(--ink-3);
+  font-family:var(--f-body); font-size:12.5px; padding:6px 13px;
+  transition:all .13s;
+}
+.chip[aria-pressed="true"]{
+  background:var(--accent-soft); border-color:var(--accent-br); color:var(--accent); font-weight:500;
+}
+.chip .n{font-family:var(--f-mono); font-size:10.5px; opacity:.7; margin-left:4px}
+.note{margin-top:10px; font-size:11.5px; color:var(--ink-3); line-height:1.55}
+
+/* ---------- chart sheet ---------- */
+.sheet{
+  position:fixed; inset:0; z-index:40; overflow-y:auto;
+  background:var(--paper);
+  padding:0 16px calc(28px + env(safe-area-inset-bottom,0px));
+}
+.sheethead{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:2;
+  background:var(--paper); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+  padding-block:16px 12px;
+}
+.sheethead h2{
+  margin:0; font-family:var(--f-disp); font-weight:700; font-size:20px; letter-spacing:.04em;
+}
+.closebtn{
+  appearance:none; cursor:pointer; border:1px solid var(--line-2);
+  background:var(--raise); color:var(--ink-2); border-radius:3px;
+  font-family:var(--f-body); font-size:13px; padding:7px 14px;
+}
+.closebtn:hover{border-color:var(--accent-br); color:var(--accent)}
+.grouphead{
+  display:flex; align-items:baseline; gap:10px;
+  margin:22px 0 9px; padding-bottom:5px; border-bottom:1px solid var(--line);
+}
+.grouphead h3{margin:0; font-family:var(--f-disp); font-size:16px; font-weight:700}
+.grouphead span{font-size:11px; color:var(--ink-3); letter-spacing:.1em}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:7px}
+.cards.w{grid-template-columns:repeat(auto-fill,minmax(244px,1fr))}
+.lcard .g.w{font-size:23px; min-width:54px; line-height:1.3}
+.lcard{
+  background:var(--card); border:1px solid var(--line); border-radius:3px;
+  padding:10px 11px; display:flex; gap:11px; align-items:flex-start;
+  cursor:pointer; text-align:left; font-family:var(--f-body); color:var(--ink);
+  transition:border-color .13s;
+}
+.lcard:hover{border-color:var(--accent-br)}
+.lcard .g{font-family:var(--f-disp); font-size:30px; line-height:1.05; min-width:34px}
+.lcard .meta{min-width:0; flex:1}
+.lcard .r{font-family:var(--f-mono); font-size:13px; color:var(--accent)}
+.lcard .n{font-family:var(--f-disp); font-size:12px; color:var(--ink-3)}
+.lcard .h{display:block; font-size:11.5px; color:var(--ink-2); margin-top:3px; line-height:1.45}
+.bar{display:block; height:3px; border-radius:2px; background:var(--line); margin-top:7px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--ok); width:0}
+.legend{font-size:11.5px; color:var(--ink-3); margin-top:14px; line-height:1.6}
+
+@media (max-width:400px){
+  .brand .ko{font-size:26px}
+  .cell{width:138px; height:138px}
+  .glyph{font-size:76px}
+  .modes button{font-size:12px; padding:9px 2px 8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important; transition-duration:.01ms !important}
+  .seal.show{opacity:.88; transform:rotate(-14deg) scale(1)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="ko">한글</span>
+      <span class="zh">發音道場</span>
+    </div>
+    <div class="score">
+      <dl><dt>連續</dt><dd id="s-streak">0</dd></dl>
+      <dl><dt>正確率</dt><dd id="s-acc">—</dd></dl>
+      <dl><dt>題數</dt><dd id="s-count">0</dd></dl>
+    </div>
+  </header>
+
+  <nav class="modes" id="modes" aria-label="練習模式">
+    <button type="button" data-mode="read" aria-pressed="true">認字母</button>
+    <button type="button" data-mode="find" aria-pressed="false">找字母</button>
+    <button type="button" data-mode="build" aria-pressed="false">拼音節</button>
+    <button type="button" data-mode="word" aria-pressed="false">學單字</button>
+    <button type="button" data-mode="listen" aria-pressed="false" id="m-listen">聽發音</button>
+  </nav>
+
+  <main class="stage">
+    <div class="seal" id="seal" aria-hidden="true">正</div>
+    <p class="ask" id="ask">這個字母怎麼讀？</p>
+    <div class="promptbox">
+      <div class="cell" id="cell">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <rect x="1.5" y="1.5" width="97" height="97"/>
+          <line x1="50" y1="2" x2="50" y2="98"/>
+          <line x1="2" y1="50" x2="98" y2="50"/>
+          <line x1="3" y1="3" x2="97" y2="97"/>
+          <line x1="97" y1="3" x2="3" y2="97"/>
+        </svg>
+        <div class="glyph" id="prompt">ㄱ</div>
+      </div>
+    </div>
+    <p class="subhint" id="subhint"></p>
+    <button type="button" class="audiobtn" id="play" hidden>🔊 再聽一次　<span style="opacity:.55">R</span></button>
+
+    <div class="choices" id="choices"></div>
+
+    <div class="reveal" id="reveal" hidden>
+      <div class="line1">
+        <span class="kochar" id="r-char"></span>
+        <span class="koname" id="r-name"></span>
+        <span class="rr" id="r-rr"></span>
+      </div>
+      <p id="r-zh"></p>
+      <p class="org" id="r-org"></p>
+      <div class="decomp" id="r-dec" hidden></div>
+      <div class="nextrow">
+        <button type="button" class="next" id="next">下一題　⏎</button>
+      </div>
+    </div>
+  </main>
+
+  <section class="tools">
+    <div class="toolhead">
+      <span>出題範圍</span>
+      <button type="button" class="linkbtn" id="openchart">字母表／單字表</button>
+    </div>
+    <div class="chips" id="chips"></div>
+    <p class="note" id="note">鍵盤：<b>1–4</b> 作答，<b>Enter</b> 下一題。羅馬拼音採大韓民國文化觀光部 2000 年版（RR）。</p>
+  </section>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="wrap">
+    <div class="sheethead">
+      <h2 id="sheettitle">한글 字母表</h2>
+      <button type="button" class="closebtn" id="closechart">關閉　Esc</button>
+    </div>
+    <div class="seg" id="seg">
+      <button type="button" data-view="letters" aria-pressed="true">字母 40</button>
+      <button type="button" data-view="words" aria-pressed="false">單字</button>
+    </div>
+    <div id="chartbody"></div>
+    <p class="legend" id="legend">
+      綠色橫條為你的熟練度（近期答對比例）。點任一字母可聽發音。<br>
+      造字說明依《訓民正音》：子音象發音器官之形，母音取天（ㆍ）、地（ㅡ）、人（ㅣ）三才。
+    </p>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ 字母資料 ============ */
+var DATA = {
+  c1: {label:'基本子音', note:'14 字', items:[
+    {ch:'ㄱ', nm:'기역', rr:'g / k',  zh:'接近注音 ㄍ（不送氣）；當收尾音時像輕輕的 k', org:'牙音·象舌根閉喉之形'},
+    {ch:'ㄴ', nm:'니은', rr:'n',      zh:'注音 ㄋ', org:'舌音·象舌尖抵上顎之形'},
+    {ch:'ㄷ', nm:'디귿', rr:'d / t',  zh:'注音 ㄉ（不送氣）', org:'舌音·ㄴ 加一畫'},
+    {ch:'ㄹ', nm:'리을', rr:'r / l',  zh:'字首為輕彈舌的 ㄌ；收尾時舌尖抵住上顎不放開，接近英語的 L', org:'舌音之異體字'},
+    {ch:'ㅁ', nm:'미음', rr:'m',      zh:'注音 ㄇ', org:'脣音·象口之形'},
+    {ch:'ㅂ', nm:'비읍', rr:'b / p',  zh:'注音 ㄅ（不送氣）', org:'脣音·ㅁ 加二畫'},
+    {ch:'ㅅ', nm:'시옷', rr:'s',      zh:'注音 ㄙ；後面接 ㅣ、ㅑ 等音時近 ㄒ', org:'齒音·象齒之形'},
+    {ch:'ㅇ', nm:'이응', rr:'— / ng', zh:'放在字首不發音（只是佔位）；當收尾音時發 ng', org:'喉音·象喉之形'},
+    {ch:'ㅈ', nm:'지읒', rr:'j',      zh:'介於注音 ㄗ 與 ㄐ 之間，不送氣', org:'齒音·ㅅ 加一畫'},
+    {ch:'ㅊ', nm:'치읓', rr:'ch',     zh:'送氣版的 ㄘ／ㄑ', org:'齒音·ㅈ 加一畫（送氣）'},
+    {ch:'ㅋ', nm:'키읔', rr:'k',      zh:'送氣的 ㄎ', org:'牙音·ㄱ 加一畫（送氣）'},
+    {ch:'ㅌ', nm:'티읕', rr:'t',      zh:'送氣的 ㄊ', org:'舌音·ㄷ 加一畫（送氣）'},
+    {ch:'ㅍ', nm:'피읖', rr:'p',      zh:'送氣的 ㄆ', org:'脣音·ㅂ 變形加畫（送氣）'},
+    {ch:'ㅎ', nm:'히읗', rr:'h',      zh:'注音 ㄏ', org:'喉音·ㅇ 加二畫'}
+  ]},
+  c2: {label:'緊音（雙子音）', note:'5 字', items:[
+    {ch:'ㄲ', nm:'쌍기역', rr:'kk', zh:'喉嚨先繃緊再彈出的 ㄍ，短促有力', org:'並書·ㄱ 相疊'},
+    {ch:'ㄸ', nm:'쌍디귿', rr:'tt', zh:'喉嚨繃緊後彈出的 ㄉ', org:'並書·ㄷ 相疊'},
+    {ch:'ㅃ', nm:'쌍비읍', rr:'pp', zh:'喉嚨繃緊後彈出的 ㄅ', org:'並書·ㅂ 相疊'},
+    {ch:'ㅆ', nm:'쌍시옷', rr:'ss', zh:'喉嚨繃緊後擠出的 ㄙ', org:'並書·ㅅ 相疊'},
+    {ch:'ㅉ', nm:'쌍지읒', rr:'jj', zh:'喉嚨繃緊後彈出的 ㄗ', org:'並書·ㅈ 相疊'}
+  ]},
+  v1: {label:'基本母音', note:'10 字', items:[
+    {ch:'ㅏ', nm:'아', rr:'a',   zh:'注音 ㄚ', org:'ㅣ 右加一點（陽性）'},
+    {ch:'ㅑ', nm:'야', rr:'ya',  zh:'注音 ㄧㄚ', org:'ㅏ 再加一點'},
+    {ch:'ㅓ', nm:'어', rr:'eo',  zh:'嘴半開、不圓唇的 ㄜ', org:'ㅣ 左加一點（陰性）'},
+    {ch:'ㅕ', nm:'여', rr:'yeo', zh:'注音 ㄧㄜ', org:'ㅓ 再加一點'},
+    {ch:'ㅗ', nm:'오', rr:'o',   zh:'嘴唇收圓的 ㄛ', org:'ㅡ 上加一點（陽性）'},
+    {ch:'ㅛ', nm:'요', rr:'yo',  zh:'注音 ㄧㄛ（圓唇）', org:'ㅗ 再加一點'},
+    {ch:'ㅜ', nm:'우', rr:'u',   zh:'嘴唇收圓的 ㄨ', org:'ㅡ 下加一點（陰性）'},
+    {ch:'ㅠ', nm:'유', rr:'yu',  zh:'注音 ㄧㄨ', org:'ㅜ 再加一點'},
+    {ch:'ㅡ', nm:'으', rr:'eu',  zh:'嘴角向兩側拉平的 ㄜ，唇完全不圓', org:'象地之平'},
+    {ch:'ㅣ', nm:'이', rr:'i',   zh:'注音 ㄧ', org:'象人之立'}
+  ]},
+  v2: {label:'複合母音', note:'11 字', items:[
+    {ch:'ㅐ', nm:'애', rr:'ae',  zh:'注音 ㄝ，開口比 ㅔ 稍大（現代音已與 ㅔ 幾乎相同）', org:'ㅏ + ㅣ'},
+    {ch:'ㅒ', nm:'얘', rr:'yae', zh:'注音 ㄧㄝ（開口稍大）', org:'ㅑ + ㅣ'},
+    {ch:'ㅔ', nm:'에', rr:'e',   zh:'注音 ㄝ', org:'ㅓ + ㅣ'},
+    {ch:'ㅖ', nm:'예', rr:'ye',  zh:'注音 ㄧㄝ', org:'ㅕ + ㅣ'},
+    {ch:'ㅘ', nm:'와', rr:'wa',  zh:'注音 ㄨㄚ', org:'ㅗ + ㅏ'},
+    {ch:'ㅙ', nm:'왜', rr:'wae', zh:'注音 ㄨㄝ', org:'ㅗ + ㅐ'},
+    {ch:'ㅚ', nm:'외', rr:'oe',  zh:'現代讀作 ㄨㄝ，與 ㅙ、ㅞ 幾乎同音', org:'ㅗ + ㅣ'},
+    {ch:'ㅝ', nm:'워', rr:'wo',  zh:'注音 ㄨㄛ', org:'ㅜ + ㅓ'},
+    {ch:'ㅞ', nm:'웨', rr:'we',  zh:'注音 ㄨㄝ', org:'ㅜ + ㅔ'},
+    {ch:'ㅟ', nm:'위', rr:'wi',  zh:'注音 ㄨㄧ', org:'ㅜ + ㅣ'},
+    {ch:'ㅢ', nm:'의', rr:'ui',  zh:'ㄜ 與 ㄧ 快速連讀；當助詞時讀作 ㅔ', org:'ㅡ + ㅣ'}
+  ]}
+};
+var ORDER = ['c1','c2','v1','v2'];
+var ALL = [];
+ORDER.forEach(function(k){
+  DATA[k].items.forEach(function(it){ it.set = k; it.isV = (k[0] === 'v'); ALL.push(it); });
+});
+var BY_CH = {};
+ALL.forEach(function(it){ BY_CH[it.ch] = it; });
+
+/* ============ 音節組字 ============ */
+var INIT = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+var MED  = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+var FIN  = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+var INIT_RR = {'ㄱ':'g','ㄲ':'kk','ㄴ':'n','ㄷ':'d','ㄸ':'tt','ㄹ':'r','ㅁ':'m','ㅂ':'b','ㅃ':'pp','ㅅ':'s','ㅆ':'ss','ㅇ':'','ㅈ':'j','ㅉ':'jj','ㅊ':'ch','ㅋ':'k','ㅌ':'t','ㅍ':'p','ㅎ':'h'};
+var FIN_RR  = {'ㄱ':'k','ㄴ':'n','ㄹ':'l','ㅁ':'m','ㅂ':'p','ㅇ':'ng'};
+var FIN_POOL = ['ㄱ','ㄴ','ㄹ','ㅁ','ㅂ','ㅇ'];
+var VOW_RR = {};
+DATA.v1.items.concat(DATA.v2.items).forEach(function(v){ VOW_RR[v.ch] = v.rr; });
+
+function compose(i, v, f){
+  var a = INIT.indexOf(i), b = MED.indexOf(v), c = FIN.indexOf(f || '');
+  if (a < 0 || b < 0 || c < 0) return '';
+  return String.fromCharCode(0xAC00 + (a * 21 + b) * 28 + c);
+}
+function syllRR(i, v, f){
+  return (INIT_RR[i] || '') + (VOW_RR[v] || '') + (f ? (FIN_RR[f] || '') : '');
+}
+/* 字母的示範音節：子音配 ㅏ，母音配無聲的 ㅇ */
+function demoSyllable(it){
+  return it.isV ? compose('ㅇ', it.ch, '') : compose(it.ch, 'ㅏ', '');
+}
+
+/* ============ 單字 ============ */
+/* lv 1：整個字都沒有收尾音　lv 2：含收尾音（받침）
+   say：實際發音與拼寫不同時標註 */
+var WORDS = [
+  {w:'소',rr:'so',zh:'牛',lv:1},
+  {w:'개',rr:'gae',zh:'狗',lv:1},
+  {w:'비',rr:'bi',zh:'雨',lv:1},
+  {w:'코',rr:'ko',zh:'鼻子',lv:1},
+  {w:'차',rr:'cha',zh:'車；茶',lv:1},
+  {w:'귀',rr:'gwi',zh:'耳朵',lv:1},
+  {w:'나',rr:'na',zh:'我',lv:1},
+  {w:'너',rr:'neo',zh:'你',lv:1},
+  {w:'우리',rr:'uri',zh:'我們',lv:1},
+  {w:'머리',rr:'meori',zh:'頭；頭髮',lv:1},
+  {w:'다리',rr:'dari',zh:'腿；橋',lv:1},
+  {w:'허리',rr:'heori',zh:'腰',lv:1},
+  {w:'바다',rr:'bada',zh:'海',lv:1},
+  {w:'나라',rr:'nara',zh:'國家',lv:1},
+  {w:'아이',rr:'ai',zh:'小孩',lv:1},
+  {w:'오이',rr:'oi',zh:'小黃瓜',lv:1},
+  {w:'고기',rr:'gogi',zh:'肉',lv:1},
+  {w:'나무',rr:'namu',zh:'樹',lv:1},
+  {w:'하루',rr:'haru',zh:'一天',lv:1},
+  {w:'어디',rr:'eodi',zh:'哪裡',lv:1},
+  {w:'여기',rr:'yeogi',zh:'這裡',lv:1},
+  {w:'거기',rr:'geogi',zh:'那裡',lv:1},
+  {w:'누구',rr:'nugu',zh:'誰',lv:1},
+  {w:'하나',rr:'hana',zh:'一（個）',lv:1},
+  {w:'다시',rr:'dasi',zh:'再一次',lv:1},
+  {w:'지도',rr:'jido',zh:'地圖',lv:1},
+  {w:'모자',rr:'moja',zh:'帽子',lv:1},
+  {w:'사자',rr:'saja',zh:'獅子',lv:1},
+  {w:'바지',rr:'baji',zh:'褲子',lv:1},
+  {w:'치마',rr:'chima',zh:'裙子',lv:1},
+  {w:'구두',rr:'gudu',zh:'皮鞋',lv:1},
+  {w:'포도',rr:'podo',zh:'葡萄',lv:1},
+  {w:'우유',rr:'uyu',zh:'牛奶',lv:1},
+  {w:'두부',rr:'dubu',zh:'豆腐',lv:1},
+  {w:'호수',rr:'hosu',zh:'湖',lv:1},
+  {w:'주소',rr:'juso',zh:'地址',lv:1},
+  {w:'가게',rr:'gage',zh:'商店',lv:1},
+  {w:'노래',rr:'norae',zh:'歌',lv:1},
+  {w:'여자',rr:'yeoja',zh:'女生',lv:1},
+  {w:'요리',rr:'yori',zh:'料理',lv:1},
+  {w:'커피',rr:'keopi',zh:'咖啡',lv:1},
+  {w:'피자',rr:'pija',zh:'披薩',lv:1},
+  {w:'버스',rr:'beoseu',zh:'公車',lv:1},
+  {w:'소파',rr:'sopa',zh:'沙發',lv:1},
+  {w:'소주',rr:'soju',zh:'燒酒',lv:1},
+  {w:'지하',rr:'jiha',zh:'地下',lv:1},
+  {w:'시계',rr:'sigye',zh:'時鐘；手錶',lv:1,say:'시게'},
+  {w:'의자',rr:'uija',zh:'椅子',lv:1,say:'이자'},
+  {w:'아버지',rr:'abeoji',zh:'爸爸',lv:1},
+  {w:'어머니',rr:'eomeoni',zh:'媽媽',lv:1},
+  {w:'토마토',rr:'tomato',zh:'番茄',lv:1},
+  {w:'바나나',rr:'banana',zh:'香蕉',lv:1},
+  {w:'카메라',rr:'kamera',zh:'相機',lv:1},
+  {w:'라디오',rr:'radio',zh:'收音機',lv:1},
+  {w:'가다',rr:'gada',zh:'去',lv:1},
+  {w:'오다',rr:'oda',zh:'來',lv:1},
+  {w:'보다',rr:'boda',zh:'看',lv:1},
+
+  {w:'밥',rr:'bap',zh:'飯',lv:2},
+  {w:'물',rr:'mul',zh:'水',lv:2},
+  {w:'산',rr:'san',zh:'山',lv:2},
+  {w:'집',rr:'jip',zh:'家',lv:2},
+  {w:'문',rr:'mun',zh:'門',lv:2},
+  {w:'책',rr:'chaek',zh:'書',lv:2},
+  {w:'눈',rr:'nun',zh:'眼睛；雪',lv:2},
+  {w:'손',rr:'son',zh:'手',lv:2},
+  {w:'발',rr:'bal',zh:'腳',lv:2},
+  {w:'입',rr:'ip',zh:'嘴',lv:2},
+  {w:'강',rr:'gang',zh:'江；河',lv:2},
+  {w:'공',rr:'gong',zh:'球',lv:2},
+  {w:'빵',rr:'ppang',zh:'麵包',lv:2},
+  {w:'꽃',rr:'kkot',zh:'花',lv:2,say:'꼳'},
+  {w:'달',rr:'dal',zh:'月亮',lv:2},
+  {w:'별',rr:'byeol',zh:'星星',lv:2},
+  {w:'봄',rr:'bom',zh:'春天',lv:2},
+  {w:'여름',rr:'yeoreum',zh:'夏天',lv:2},
+  {w:'가을',rr:'gaeul',zh:'秋天',lv:2},
+  {w:'겨울',rr:'gyeoul',zh:'冬天',lv:2},
+  {w:'사람',rr:'saram',zh:'人',lv:2},
+  {w:'친구',rr:'chingu',zh:'朋友',lv:2},
+  {w:'사랑',rr:'sarang',zh:'愛',lv:2},
+  {w:'안녕',rr:'annyeong',zh:'你好；再見',lv:2},
+  {w:'감사',rr:'gamsa',zh:'感謝',lv:2},
+  {w:'시간',rr:'sigan',zh:'時間',lv:2},
+  {w:'지금',rr:'jigeum',zh:'現在',lv:2},
+  {w:'음악',rr:'eumak',zh:'音樂',lv:2,say:'으막'},
+  {w:'공부',rr:'gongbu',zh:'讀書',lv:2},
+  {w:'가방',rr:'gabang',zh:'包包',lv:2},
+  {w:'이름',rr:'ireum',zh:'名字',lv:2},
+  {w:'얼굴',rr:'eolgul',zh:'臉',lv:2},
+  {w:'사진',rr:'sajin',zh:'照片',lv:2},
+  {w:'생일',rr:'saengil',zh:'生日',lv:2},
+  {w:'하늘',rr:'haneul',zh:'天空',lv:2},
+  {w:'바람',rr:'baram',zh:'風',lv:2},
+  {w:'우산',rr:'usan',zh:'雨傘',lv:2},
+  {w:'안경',rr:'an-gyeong',zh:'眼鏡',lv:2},
+  {w:'학교',rr:'hakgyo',zh:'學校',lv:2,say:'학꾜'},
+  {w:'한국',rr:'hanguk',zh:'韓國',lv:2},
+  {w:'대만',rr:'daeman',zh:'台灣',lv:2},
+  {w:'일본',rr:'ilbon',zh:'日本',lv:2},
+  {w:'김치',rr:'gimchi',zh:'泡菜',lv:2},
+  {w:'라면',rr:'ramyeon',zh:'泡麵',lv:2},
+  {w:'냉면',rr:'naengmyeon',zh:'冷麵',lv:2},
+  {w:'비빔밥',rr:'bibimbap',zh:'拌飯',lv:2,say:'비빔빱'},
+  {w:'삼겹살',rr:'samgyeopsal',zh:'五花肉',lv:2,say:'삼겹쌀'},
+  {w:'선생님',rr:'seonsaengnim',zh:'老師',lv:2}
+];
+var WLV = {1:{label:'無收尾音', n:0}, 2:{label:'有收尾音（받침）', n:0}};
+WORDS.forEach(function(x){ WLV[x.lv].n++; });
+
+/* 把一個字拆回字母 */
+function decompose(word){
+  var out = [];
+  for (var i = 0; i < word.length; i++){
+    var c = word.charCodeAt(i);
+    if (c >= 0xAC00 && c <= 0xD7A3){
+      var s = c - 0xAC00;
+      out.push({
+        syl: word[i],
+        j: [INIT[Math.floor(s / 588)], MED[Math.floor((s % 588) / 28)], FIN[s % 28]]
+             .filter(function(x){ return !!x; })
+      });
+    } else {
+      out.push({syl: word[i], j: []});
+    }
+  }
+  return out;
+}
+function decompText(word){
+  return decompose(word).map(function(p){
+    return p.j.length ? p.syl + '＝' + p.j.join('＋') : p.syl;
+  }).join('　／　');
+}
+
+/* ============ 狀態 ============ */
+var STORE_KEY = 'hangul-dojo-v1';
+var state = {
+  mode: 'read',
+  scope: {c1:true, c2:false, v1:true, v2:false},
+  wordScope: {1:true, 2:true},
+  chartView: 'letters',
+  streak: 0, best: 0, count: 0, right: 0,
+  q: null, locked: false
+};
+var mastery = {};
+
+function load(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    var o = JSON.parse(raw);
+    if (o && o.mastery) mastery = o.mastery;
+    if (o && o.scope) { ORDER.forEach(function(k){ if (typeof o.scope[k] === 'boolean') state.scope[k] = o.scope[k]; }); }
+    if (o && o.wordScope) { [1,2].forEach(function(k){ if (typeof o.wordScope[k] === 'boolean') state.wordScope[k] = o.wordScope[k]; }); }
+    if (o && typeof o.best === 'number') state.best = o.best;
+  }catch(e){}
+}
+function save(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      mastery:mastery, scope:state.scope, wordScope:state.wordScope, best:state.best
+    }));
+  }catch(e){}
+}
+function record(ch, ok){
+  var m = mastery[ch] || (mastery[ch] = {n:0, r:0});
+  m.n++; if (ok) m.r++;
+  if (m.n > 12){ m.n = Math.round(m.n * 0.6); m.r = Math.round(m.r * 0.6); }
+  save();
+}
+
+/* ============ 工具 ============ */
+function $(id){ return document.getElementById(id); }
+function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(a){
+  for (var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function activePool(){
+  var p = [];
+  ORDER.forEach(function(k){ if (state.scope[k]) p = p.concat(DATA[k].items); });
+  return p.length ? p : DATA.c1.items.slice();
+}
+function consonantPool(){
+  var p = [];
+  if (state.scope.c1) p = p.concat(DATA.c1.items);
+  if (state.scope.c2) p = p.concat(DATA.c2.items);
+  return p.length ? p : DATA.c1.items.slice();
+}
+function vowelPool(){
+  var p = [];
+  if (state.scope.v1) p = p.concat(DATA.v1.items);
+  if (state.scope.v2) p = p.concat(DATA.v2.items);
+  return p.length ? p : DATA.v1.items.slice();
+}
+function wordPool(){
+  var p = WORDS.filter(function(x){ return state.wordScope[x.lv]; });
+  return p.length ? p : WORDS.slice();
+}
+/* 弱項優先：熟練度低的項目出現機率較高 */
+function weightedPickBy(pool, keyFn){
+  var bag = [];
+  pool.forEach(function(it){
+    var m = mastery[keyFn(it)];
+    var w = 3;
+    if (m && m.n >= 2){ var acc = m.r / m.n; w = acc > 0.85 ? 1 : (acc > 0.6 ? 3 : 5); }
+    for (var i = 0; i < w; i++) bag.push(it);
+  });
+  return pick(bag);
+}
+function weightedPick(pool){
+  return weightedPickBy(pool, function(x){ return x.ch; });
+}
+
+/* ============ 語音 ============ */
+var koVoice = null, ttsOK = false;
+function findVoice(){
+  try{
+    if (!('speechSynthesis' in window)) return;
+    var vs = window.speechSynthesis.getVoices() || [];
+    var v = null;
+    for (var i = 0; i < vs.length; i++){ if (/^ko/i.test(vs[i].lang || '')) { v = vs[i]; break; } }
+    koVoice = v;
+    var now = !!v;
+    if (now !== ttsOK){ ttsOK = now; updateAudioUI(); }
+  }catch(e){}
+}
+function speak(text){
+  if (!ttsOK || !text) return;
+  try{
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.voice = koVoice; u.lang = koVoice.lang || 'ko-KR'; u.rate = 0.8;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function updateAudioUI(){
+  $('m-listen').disabled = !ttsOK;
+  if (!ttsOK){
+    $('note').innerHTML = '鍵盤：<b>1–4</b> 作答，<b>Enter</b> 下一題。此裝置未偵測到韓語語音，「聽發音」暫不可用；其餘模式不受影響。';
+    if (state.mode === 'listen'){ setMode('read'); }
+  } else {
+    $('note').innerHTML = '鍵盤：<b>1–4</b> 作答，<b>Enter</b> 下一題，<b>R</b> 重播。羅馬拼音採大韓民國文化觀光部 2000 年版（RR）。';
+  }
+  syncModes();
+}
+try{
+  if ('speechSynthesis' in window){
+    findVoice();
+    window.speechSynthesis.onvoiceschanged = findVoice;
+    setTimeout(findVoice, 400); setTimeout(findVoice, 1500);
+  }
+}catch(e){}
+
+/* ============ 出題 ============ */
+function makeQuestion(){
+  var mode = state.mode;
+  if (mode === 'build') return buildQuestion();
+  if (mode === 'word')  return wordQuestion();
+
+  var pool = activePool();
+  var target = weightedPick(pool);
+  var q = {mode:mode, item:target, key:target.ch};
+
+  if (mode === 'read'){
+    q.ask = '這個字母怎麼讀？';
+    q.promptType = 'glyph';
+    q.prompt = target.ch;
+    q.answer = target.rr;
+    q.options = distractors(pool, target, function(x){ return x.rr; }, target.rr);
+    q.optionClass = '';
+    q.audio = demoSyllable(target);
+  } else {
+    q.ask = mode === 'listen' ? '聽到的是哪一個字母？' : '哪一個字母發這個音？';
+    q.promptType = mode === 'listen' ? 'audio' : 'rom';
+    q.prompt = target.rr;
+    q.answer = target.ch;
+    q.options = distractors(pool, target, function(x){ return x.ch; }, target.ch);
+    q.optionClass = 'ko';
+    q.audio = demoSyllable(target);
+    if (mode === 'find') q.hint = target.zh;
+  }
+  return q;
+}
+
+function distractors(pool, target, keyFn, answer){
+  var same = pool.filter(function(x){ return x.set === target.set && keyFn(x) !== answer; });
+  var other = pool.filter(function(x){ return x.set !== target.set && keyFn(x) !== answer; });
+  var seen = {}; seen[answer] = 1;
+  var out = [answer];
+  var take = function(list){
+    shuffle(list.slice()).forEach(function(x){
+      var k = keyFn(x);
+      if (out.length < 4 && !seen[k]){ seen[k] = 1; out.push(k); }
+    });
+  };
+  take(same); take(other);
+  if (out.length < 4){
+    take(ALL.filter(function(x){ return keyFn(x) !== answer; }));
+  }
+  return shuffle(out);
+}
+
+var V_BELOW = {'ㅗ':1,'ㅛ':1,'ㅜ':1,'ㅠ':1,'ㅡ':1};
+var V_WRAP  = {'ㅘ':1,'ㅙ':1,'ㅚ':1,'ㅝ':1,'ㅞ':1,'ㅟ':1,'ㅢ':1};
+function placeHint(v){
+  if (V_BELOW[v]) return '這個母音以橫畫為主，所以疊在子音「正下方」。';
+  if (V_WRAP[v])  return '這是複合母音，橫畫的部分墊在子音下方、縱畫的部分站到右邊，把子音包起來。';
+  return '這個母音以豎畫為主，所以站在子音「右邊」。';
+}
+
+function buildQuestion(){
+  var cons = consonantPool(), vows = vowelPool();
+  var ci = weightedPick(cons).ch;
+  var vi = weightedPick(vows).ch;
+  var withFinal = Math.random() < 0.35;
+  var fi = withFinal ? pick(FIN_POOL) : '';
+  var ans = compose(ci, vi, fi);
+  if (!ans) return buildQuestion();
+
+  var opts = [ans], guard = 0;
+  while (opts.length < 4 && guard++ < 60){
+    var c2 = ci, v2 = vi, f2 = fi, roll = Math.random();
+    if (roll < 0.45) v2 = pick(vows).ch;
+    else if (roll < 0.8) c2 = pick(cons).ch;
+    else f2 = fi ? (Math.random() < 0.5 ? '' : pick(FIN_POOL)) : pick(FIN_POOL);
+    var cand = compose(c2, v2, f2);
+    if (cand && opts.indexOf(cand) === -1) opts.push(cand);
+  }
+  while (opts.length < 4){
+    var r = compose(pick(INIT), pick(MED), '');
+    if (opts.indexOf(r) === -1) opts.push(r);
+  }
+
+  return {
+    mode:'build', key:ci,
+    ask:(fi ? '這三個' : '這兩個') + '字母拼起來是？',
+    promptType:'formula',
+    parts:[ci, vi, fi],
+    answer:ans,
+    options:shuffle(opts),
+    optionClass:'ko',
+    audio:ans,
+    item:{
+      ch:ans,
+      nm:syllRR(ci, vi, fi),
+      rr:syllRR(ci, vi, fi),
+      zh:placeHint(vi) + (fi ? '收尾子音（받침 ' + fi + '）則墊在整個字的最底下。' : ''),
+      org:'組成：' + ci + '（' + (INIT_RR[ci] || '無聲') + '）＋ ' + vi + '（' + VOW_RR[vi] + '）' +
+          (fi ? '＋ 받침 ' + fi + '（' + FIN_RR[fi] + '）' : '')
+    }
+  };
+}
+
+function wordDistract(pool, target, keyFn){
+  var ans = keyFn(target);
+  var same = pool.filter(function(x){ return x.lv === target.lv && keyFn(x) !== ans; });
+  var seen = {}; seen[ans] = 1;
+  var out = [ans];
+  var take = function(list){
+    shuffle(list.slice()).forEach(function(x){
+      var k = keyFn(x);
+      if (out.length < 4 && !seen[k]){ seen[k] = 1; out.push(k); }
+    });
+  };
+  take(same);
+  take(WORDS.filter(function(x){ return keyFn(x) !== ans; }));
+  return shuffle(out);
+}
+
+function wordQuestion(){
+  var pool = wordPool();
+  var t = weightedPickBy(pool, function(x){ return x.w; });
+  var roll = Math.random();
+  var dir = roll < 0.45 ? 'zh' : (roll < 0.8 ? 'ko' : 'rr');
+
+  var q = {mode:'word', key:t.w, word:t, audio:t.w, item:t};
+  if (dir === 'zh'){
+    q.ask = '這個單字是什麼意思？';
+    q.promptType = 'word'; q.prompt = t.w;
+    q.answer = t.zh;
+    q.options = wordDistract(pool, t, function(x){ return x.zh; });
+    q.optionClass = 'zhopt';
+  } else if (dir === 'ko'){
+    q.ask = '哪一個是這個意思的韓文？';
+    q.promptType = 'mean'; q.prompt = t.zh;
+    q.answer = t.w;
+    q.options = wordDistract(pool, t, function(x){ return x.w; });
+    q.optionClass = 'ko wd';
+  } else {
+    q.ask = '這個單字怎麼唸？';
+    q.promptType = 'word'; q.prompt = t.w;
+    q.answer = t.rr;
+    q.options = wordDistract(pool, t, function(x){ return x.rr; });
+    q.optionClass = 'rrw';
+  }
+  return q;
+}
+
+/* ============ 畫面 ============ */
+function render(){
+  var q = state.q;
+  state.locked = false;
+  $('ask').textContent = q.ask;
+  $('reveal').hidden = true;
+  $('seal').className = 'seal';
+
+  var p = $('prompt');
+  p.className = 'glyph';
+  var wideTypes = {formula:1, word:1, mean:1};
+  $('cell').className = wideTypes[q.promptType] ? 'cell wide' : 'cell';
+  if (q.promptType === 'glyph'){
+    p.textContent = q.prompt;
+  } else if (q.promptType === 'word'){
+    p.className = 'glyph word' + (q.prompt.length >= 4 ? ' long' : '');
+    p.textContent = q.prompt;
+  } else if (q.promptType === 'mean'){
+    p.className = 'glyph mean';
+    p.textContent = q.prompt;
+  } else if (q.promptType === 'rom'){
+    p.className = 'glyph rom';
+    p.textContent = q.prompt;
+  } else if (q.promptType === 'audio'){
+    p.className = 'glyph sm';
+    p.textContent = '♪';
+  } else if (q.promptType === 'formula'){
+    p.className = 'formula';
+    p.innerHTML = '';
+    var bits = [q.parts[0], q.parts[1]].concat(q.parts[2] ? [q.parts[2]] : []);
+    bits.forEach(function(b, i){
+      if (i){ var e = document.createElement('em'); e.textContent = '+'; p.appendChild(e); }
+      var s = document.createElement('span'); s.textContent = b; p.appendChild(s);
+    });
+  }
+
+  $('subhint').textContent = q.hint || '';
+  $('play').hidden = !(ttsOK && q.audio);
+
+  var box = $('choices');
+  box.innerHTML = '';
+  q.options.forEach(function(opt, i){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'choice ' + (q.optionClass || '');
+    b.innerHTML = '<span class="num">' + (i + 1) + '</span>';
+    var t = document.createElement('span');
+    t.textContent = opt;
+    b.appendChild(t);
+    b.addEventListener('click', function(){ answer(opt, b); });
+    box.appendChild(b);
+  });
+
+  if (q.mode === 'listen') setTimeout(function(){ speak(q.audio); }, 260);
+}
+
+function answer(value, btn){
+  if (state.locked) return;
+  state.locked = true;
+  var q = state.q, ok = (value === q.answer);
+
+  state.count++;
+  if (ok){ state.right++; state.streak++; if (state.streak > state.best) state.best = state.streak; }
+  else state.streak = 0;
+  record(q.key, ok);
+  updateScore();
+
+  var seal = $('seal');
+  seal.textContent = ok ? '正' : '再';
+  seal.className = 'seal show' + (ok ? '' : ' no');
+
+  Array.prototype.forEach.call($('choices').children, function(el){
+    var label = el.lastChild.textContent;
+    el.disabled = true;
+    if (label === q.answer) el.classList.add('right');
+    else if (el === btn) el.classList.add('wrong');
+    else el.classList.add('dim');
+  });
+
+  if (q.mode === 'word'){
+    var wd = q.word;
+    $('r-char').textContent = wd.w;
+    $('r-name').textContent = wd.zh;
+    $('r-rr').textContent = wd.rr;
+    $('r-zh').textContent = '';
+    $('r-org').textContent = wd.say
+      ? '實際讀作 [' + wd.say + ']　— 這裡有音變，照字母拼會不太一樣。'
+      : '拼寫與發音一致，照字母順序唸出來就對了。';
+    $('r-dec').innerHTML = '';
+    $('r-dec').appendChild(document.createTextNode('拆成字母　'));
+    var b = document.createElement('b');
+    b.textContent = decompText(wd.w);
+    $('r-dec').appendChild(b);
+    $('r-dec').hidden = false;
+  } else {
+    var it = q.item;
+    $('r-char').textContent = it.ch;
+    $('r-name').textContent = q.mode === 'build' ? '' : it.nm;
+    $('r-rr').textContent = it.rr;
+    $('r-zh').textContent = it.zh;
+    $('r-org').textContent = it.org;
+    $('r-dec').hidden = true;
+  }
+  $('reveal').hidden = false;
+  if (q.mode !== 'listen') speak(q.audio);
+  $('next').focus({preventScroll:true});
+}
+
+function nextQ(){
+  state.q = makeQuestion();
+  render();
+}
+function updateScore(){
+  $('s-streak').textContent = state.streak;
+  $('s-streak').className = state.streak >= 5 ? 'hot' : '';
+  $('s-count').textContent = state.count;
+  $('s-acc').textContent = state.count ? Math.round(state.right / state.count * 100) + '%' : '—';
+}
+function setMode(m){
+  if (m === 'listen' && !ttsOK) return;
+  state.mode = m;
+  syncModes();
+  renderChips();
+  nextQ();
+}
+function syncModes(){
+  Array.prototype.forEach.call($('modes').children, function(b){
+    b.setAttribute('aria-pressed', b.dataset.mode === state.mode ? 'true' : 'false');
+  });
+}
+
+/* ============ 範圍 chips ============ */
+function renderChips(){
+  var box = $('chips');
+  box.innerHTML = '';
+  if (state.mode === 'word'){
+    [1, 2].forEach(function(lv){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip';
+      b.setAttribute('aria-pressed', state.wordScope[lv] ? 'true' : 'false');
+      b.innerHTML = WLV[lv].label + '<span class="n">' + WLV[lv].n + '</span>';
+      b.addEventListener('click', function(){
+        var on = [1, 2].filter(function(x){ return state.wordScope[x]; });
+        if (state.wordScope[lv] && on.length === 1) return;
+        state.wordScope[lv] = !state.wordScope[lv];
+        save(); renderChips(); nextQ();
+      });
+      box.appendChild(b);
+    });
+    return;
+  }
+  ORDER.forEach(function(k){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip';
+    b.setAttribute('aria-pressed', state.scope[k] ? 'true' : 'false');
+    b.innerHTML = DATA[k].label + '<span class="n">' + DATA[k].items.length + '</span>';
+    b.addEventListener('click', function(){
+      var on = ORDER.filter(function(x){ return state.scope[x]; });
+      if (state.scope[k] && on.length === 1) return;
+      state.scope[k] = !state.scope[k];
+      save(); renderChips(); nextQ();
+    });
+    box.appendChild(b);
+  });
+}
+
+/* ============ 字母表 ============ */
+function renderChart(){
+  var isW = state.chartView === 'words';
+  $('sheettitle').textContent = isW ? '단어 單字表' : '한글 字母表';
+  $('legend').innerHTML = isW
+    ? '綠色橫條為你的熟練度（近期答對比例）。點任一單字可聽發音。<br>每個單字都附上拆解，對照左邊的字母就能看出怎麼拼出來的。'
+    : '綠色橫條為你的熟練度（近期答對比例）。點任一字母可聽發音。<br>造字說明依《訓民正音》：子音象發音器官之形，母音取天（ㆍ）、地（ㅡ）、人（ㅣ）三才。';
+  Array.prototype.forEach.call($('seg').children, function(b){
+    b.setAttribute('aria-pressed', b.dataset.view === state.chartView ? 'true' : 'false');
+  });
+  if (isW) renderWords(); else renderLetters();
+}
+
+function renderWords(){
+  var body = $('chartbody');
+  body.innerHTML = '';
+  [1, 2].forEach(function(lv){
+    var head = document.createElement('div');
+    head.className = 'grouphead';
+    head.innerHTML = '<h3>' + WLV[lv].label + '</h3><span>' + WLV[lv].n + ' 個</span>';
+    body.appendChild(head);
+
+    var grid = document.createElement('div');
+    grid.className = 'cards w';
+    WORDS.filter(function(x){ return x.lv === lv; }).forEach(function(x){
+      var m = mastery[x.w];
+      var pct = (m && m.n) ? Math.round(m.r / m.n * 100) : 0;
+      var c = document.createElement('button');
+      c.type = 'button'; c.className = 'lcard wordcard';
+      c.innerHTML =
+        '<span class="g w"></span>' +
+        '<span class="meta">' +
+          '<span class="r"></span> <span class="n"></span>' +
+          '<span class="h"></span>' +
+          '<span class="bar"><i style="width:' + pct + '%"></i></span>' +
+        '</span>';
+      c.querySelector('.g').textContent = x.w;
+      c.querySelector('.r').textContent = x.rr;
+      c.querySelector('.n').textContent = x.zh + (x.say ? '　[' + x.say + ']' : '');
+      c.querySelector('.h').textContent = decompText(x.w);
+      c.addEventListener('click', function(){ speak(x.w); });
+      grid.appendChild(c);
+    });
+    body.appendChild(grid);
+  });
+}
+
+function renderLetters(){
+  var body = $('chartbody');
+  body.innerHTML = '';
+  ORDER.forEach(function(k){
+    var head = document.createElement('div');
+    head.className = 'grouphead';
+    head.innerHTML = '<h3>' + DATA[k].label + '</h3><span>' + DATA[k].note + '</span>';
+    body.appendChild(head);
+
+    var grid = document.createElement('div');
+    grid.className = 'cards';
+    DATA[k].items.forEach(function(it){
+      var m = mastery[it.ch];
+      var pct = (m && m.n) ? Math.round(m.r / m.n * 100) : 0;
+      var c = document.createElement('button');
+      c.type = 'button'; c.className = 'lcard';
+      c.innerHTML =
+        '<span class="g"></span>' +
+        '<span class="meta">' +
+          '<span class="r"></span> <span class="n"></span>' +
+          '<span class="h"></span>' +
+          '<span class="bar"><i style="width:' + pct + '%"></i></span>' +
+        '</span>';
+      c.querySelector('.g').textContent = it.ch;
+      c.querySelector('.r').textContent = it.rr;
+      c.querySelector('.n').textContent = it.nm;
+      c.querySelector('.h').textContent = it.zh;
+      c.addEventListener('click', function(){ speak(demoSyllable(it)); });
+      grid.appendChild(c);
+    });
+    body.appendChild(grid);
+  });
+}
+function openChart(){
+  state.chartView = (state.mode === 'word') ? 'words' : 'letters';
+  renderChart();
+  $('sheet').hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function closeChart(){ $('sheet').hidden = true; document.body.style.overflow = ''; }
+
+/* ============ 事件 ============ */
+$('modes').addEventListener('click', function(e){
+  var b = e.target.closest('button[data-mode]');
+  if (b && !b.disabled) setMode(b.dataset.mode);
+});
+$('next').addEventListener('click', nextQ);
+$('play').addEventListener('click', function(){ speak(state.q && state.q.audio); });
+$('openchart').addEventListener('click', openChart);
+$('closechart').addEventListener('click', closeChart);
+$('seg').addEventListener('click', function(e){
+  var b = e.target.closest('button[data-view]');
+  if (!b) return;
+  state.chartView = b.dataset.view;
+  renderChart();
+});
+
+document.addEventListener('keydown', function(e){
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!$('sheet').hidden){ if (e.key === 'Escape') closeChart(); return; }
+  if (e.key === 'Enter' || e.key === ' '){
+    if (state.locked){ e.preventDefault(); nextQ(); }
+    return;
+  }
+  if (e.key === 'r' || e.key === 'R'){ speak(state.q && state.q.audio); return; }
+  var n = parseInt(e.key, 10);
+  if (n >= 1 && n <= 4 && !state.locked){
+    var el = $('choices').children[n - 1];
+    if (el) el.click();
+  }
+});
+
+/* ============ 啟動 ============ */
+function start(snap){
+  load();
+  if (snap && typeof snap === 'object'){
+    if (typeof snap.count === 'number') state.count = snap.count;
+    if (typeof snap.right === 'number') state.right = snap.right;
+    if (typeof snap.streak === 'number') state.streak = snap.streak;
+    if (snap.mode && snap.mode !== 'listen') state.mode = snap.mode;
+  }
+  renderChips();
+  syncModes();
+  updateScore();
+  updateAudioUI();
+  nextQ();
+}
+try{
+  if (window.claude && window.claude.hot && window.claude.hot.snapshot){
+    window.claude.hot.snapshot(function(){
+      return {count:state.count, right:state.right, streak:state.streak, mode:state.mode};
+    });
+  }
+}catch(e){}
+if (window.claude && window.claude.hot && window.claude.hot.ready){
+  window.claude.hot.ready(start);
+} else {
+  start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+}
+})();
+</script>
+</body>
+</html>
